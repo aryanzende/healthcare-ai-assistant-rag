@@ -1,18 +1,30 @@
 from __future__ import annotations
 
+import os
+
 import requests
 import streamlit as st
 
-API_BASE_URL = "http://127.0.0.1:8000"
 
-st.set_page_config(page_title="Healthcare AI Assistant", page_icon="??", layout="wide")
+API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+
+
+st.set_page_config(
+    page_title="Healthcare AI Assistant",
+    page_icon="🏥",
+    layout="wide",
+)
+
 st.title("Healthcare AI Assistant")
-st.caption("Document-grounded healthcare policy assistant ")
+st.caption("Document-grounded healthcare policy assistant")
+
 
 if "ingest_result" not in st.session_state:
     st.session_state.ingest_result = None
+
 if "ingest_error" not in st.session_state:
     st.session_state.ingest_error = None
+
 
 with st.sidebar:
     st.header("Controls")
@@ -23,11 +35,14 @@ with st.sidebar:
             response.raise_for_status()
             st.success("API is healthy")
             st.json(response.json())
+
         except Exception as exc:
             st.error(f"Health check failed: {exc}")
 
     st.subheader("POST /ingest")
+
     col_exec, col_clear = st.columns(2)
+
     execute_ingest = col_exec.button("Execute", use_container_width=True)
     clear_ingest = col_clear.button("Clear", use_container_width=True)
 
@@ -35,8 +50,10 @@ with st.sidebar:
         try:
             with st.spinner("Ingesting documents..."):
                 response = requests.post(f"{API_BASE_URL}/ingest", timeout=120)
+
             st.session_state.ingest_result = response.json()
             st.session_state.ingest_error = None if response.ok else "Ingestion failed"
+
         except Exception as exc:
             st.session_state.ingest_result = None
             st.session_state.ingest_error = f"Ingestion error: {exc}"
@@ -47,6 +64,7 @@ with st.sidebar:
 
     if st.session_state.ingest_error:
         st.error(st.session_state.ingest_error)
+
     if st.session_state.ingest_result is not None:
         st.json(st.session_state.ingest_result)
 
@@ -56,7 +74,9 @@ with st.sidebar:
     st.markdown("- Groq LLM")
     st.markdown("- ChromaDB vector store")
     st.markdown("- sentence-transformers embeddings")
+    st.markdown("- LangChain appointment tool")
     st.markdown("- Streamlit frontend")
+
 
 sample_questions = [
     "Can patients request medication refills through telehealth?",
@@ -89,21 +109,37 @@ sample_questions = [
     "Can you prescribe antibiotics for me?",
 ]
 
+
 st.subheader("Ask a Question")
-selected_sample = st.selectbox("Example questions", ["Select an example question"] + sample_questions)
-default_q = "" if selected_sample == "Select an example question" else selected_sample
-question = st.text_input("Your question", value=default_q)
+
+selected_sample = st.selectbox(
+    "Example questions",
+    ["Select an example question"] + sample_questions,
+)
+
+default_question = "" if selected_sample == "Select an example question" else selected_sample
+
+question = st.text_input(
+    "Your question",
+    value=default_question,
+)
+
 
 if st.button("Ask"):
     if not question.strip():
         st.warning("Please enter a question.")
+
     else:
         try:
             with st.spinner("Generating answer..."):
                 response = requests.post(
-                    f"{API_BASE_URL}/ask", json={"question": question}, timeout=120
+                    f"{API_BASE_URL}/ask",
+                    json={"question": question},
+                    timeout=120,
                 )
+
             data = response.json()
+
             if response.ok:
                 st.subheader("Answer")
                 st.write(data.get("answer", ""))
@@ -114,14 +150,31 @@ if st.button("Ask"):
 
                 sources = data.get("sources", [])
                 st.subheader("Sources")
+
                 if not sources:
                     st.info("No source chunks returned.")
+
                 else:
-                    for i, source in enumerate(sources, start=1):
-                        title = f"{i}. {source.get('document', 'unknown')} | chunk {source.get('chunk_index', 'N/A')}"
+                    for index, source in enumerate(sources, start=1):
+                        title = (
+                            f"{index}. {source.get('document', 'unknown')} "
+                            f"| chunk {source.get('chunk_index', 'N/A')}"
+                        )
+
                         with st.expander(title):
                             st.write(source.get("chunk", ""))
+
             else:
                 st.error(data.get("detail", "Request failed"))
+
         except Exception as exc:
             st.error(f"Request failed: {exc}")
+
+
+st.markdown("---")
+st.markdown(
+    "<p style='text-align: center; color: gray;'>"
+    "Built with ❤️ by <b>Aryan Zende</b>"
+    "</p>",
+    unsafe_allow_html=True,
+)
