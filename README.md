@@ -273,29 +273,39 @@ No real patient data or PHI is used.
 
 ### Document Ingestion API
 
+Shows the `/ingest` endpoint reading healthcare PDFs from the `data/` folder, creating chunks, generating embeddings, and storing them in ChromaDB.
+
 ![Document Ingestion API](screenshots/ingest_api.png)
 
 ### Ask API Request
+
+Shows the `/ask` endpoint accepting a user question in JSON format.
 
 ![Ask API Request](screenshots/ask_api_request.png)
 
 ### Ask API Response with Sources
 
+Shows the RAG answer generated using retrieved PDF chunks. The response includes answer, sources, confidence, and route.
+
 ![Ask API Response](screenshots/ask_api_response.png)
 
 ### Streamlit RAG Answer
+
+Shows the Streamlit UI answering a healthcare document question using the RAG pipeline.
 
 ![Streamlit RAG Answer](screenshots/streamlit_rag_answer.png)
 
 ### LangChain Appointment Tool
 
+Shows appointment-related questions being routed to the LangChain mock appointment tool instead of RAG.
+
 ![Appointment Tool](screenshots/streamlit_appointment_tool.png)
 
 ### Unknown Answer Handling
 
-![Unknown Answer](screenshots/streamlit_unknown_answer.png)
+Shows how the assistant avoids hallucination. When the answer is not found in the documents, it returns the fallback response instead of guessing.
 
----
+![Unknown Answer](screenshots/streamlit_unknown_answer.png)
 
 ## Docker
 
