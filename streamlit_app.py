@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-import os
-
 import requests
 import streamlit as st
 
 
-API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+# For local backend testing:
+#API_BASE_URL = "http://127.0.0.1:8000"
+
+# For deployed Railway backend:
+API_BASE_URL = "https://healthcare-ai-assistant-rag-production.up.railway.app"
 
 
 st.set_page_config(
@@ -28,6 +30,8 @@ if "ingest_error" not in st.session_state:
 
 with st.sidebar:
     st.header("Controls")
+
+    st.caption(f"Backend: {API_BASE_URL}")
 
     if st.button("API Health Check"):
         try:
