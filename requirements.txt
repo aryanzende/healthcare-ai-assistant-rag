@@ -8,6 +8,5 @@ groq
 pydantic
 streamlit
 requests
-pytest
 langchain
 langchain-core

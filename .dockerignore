@@ -4,6 +4,7 @@ __pycache__/
 vector_store/
 .git/
 *.pyc
-.DS_Store
 .cache/
 .pytest_cache/
+.DS_Store
+screenshots/
