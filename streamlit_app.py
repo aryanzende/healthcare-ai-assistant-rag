@@ -53,7 +53,7 @@ with st.sidebar:
     if execute_ingest:
         try:
             with st.spinner("Ingesting documents..."):
-                response = requests.post(f"{API_BASE_URL}/ingest", timeout=120)
+                response = requests.post(f"{API_BASE_URL}/ingest", timeout=300)
 
             st.session_state.ingest_result = response.json()
             st.session_state.ingest_error = None if response.ok else "Ingestion failed"
