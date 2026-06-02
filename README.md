@@ -1,86 +1,245 @@
-# Healthcare AI Assistant Using RAG and LLMs
+# Healthcare AI Assistant using RAG, Groq LLM, FastAPI, and Streamlit
 
-A healthcare-focused AI assistant that answers questions from healthcare PDF documents using Retrieval-Augmented Generation.
+A healthcare-focused AI assistant that answers questions from healthcare policy PDF documents using **Retrieval-Augmented Generation (RAG)**. The system retrieves relevant document chunks from a vector database and generates grounded answers using a Groq-hosted LLM.
 
-This project includes PDF ingestion, semantic search, Groq LLM integration, source citations, FastAPI APIs, Streamlit UI, LangChain appointment tool workflow, and Docker support.
+This project includes **PDF ingestion, semantic search, ChromaDB vector storage, Groq LLM answer generation, source citations, confidence labels, FastAPI APIs, Streamlit chatbot UI, LangChain appointment tool routing, Docker support, and Railway deployment**.
+
+---
+
+## Live Backend
+
+```text
+https://healthcare-ai-assistant-rag-production.up.railway.app
+```
+
+API documentation:
+
+```text
+https://healthcare-ai-assistant-rag-production.up.railway.app/docs
+```
 
 ---
 
 ## Objective
 
-Build a healthcare AI assistant that answers only from provided healthcare documents and avoids hallucination when information is not available.
+The goal of this project is to build a healthcare AI assistant that:
+
+* Answers only from provided healthcare policy documents
+* Avoids hallucination when information is not present
+* Provides source references with document name and chunk index
+* Routes appointment-related questions to a mock appointment tool
+* Demonstrates a safe and explainable RAG workflow for healthcare use cases
+
+---
+
+## Problem Statement
+
+Healthcare users often need quick answers from long policy documents such as telehealth guidelines, insurance FAQs, privacy policies, discharge instructions, and medication refill rules.
+
+Manually searching these documents is time-consuming. A general chatbot may hallucinate or give unsafe answers. This project solves that by using a **document-grounded RAG pipeline** where the assistant only answers from trusted uploaded documents.
 
 ---
 
 ## Tech Stack
 
-| Component      | Technology                             |
-| -------------- | -------------------------------------- |
-| Backend        | FastAPI                                |
-| Frontend       | Streamlit                              |
-| LLM            | Groq                                   |
-| Embeddings     | sentence-transformers/all-MiniLM-L6-v2 |
-| Vector DB      | ChromaDB                               |
-| PDF Reader     | pypdf                                  |
-| Agent Workflow | LangChain Tool                         |
-| Deployment     | Docker                                 |
+| Component          | Technology                             |
+| ------------------ | -------------------------------------- |
+| Backend            | FastAPI                                |
+| Frontend / Demo UI | Streamlit                              |
+| LLM                | Groq                                   |
+| Embedding Model    | sentence-transformers/all-MiniLM-L6-v2 |
+| Vector Database    | ChromaDB                               |
+| PDF Processing     | pypdf                                  |
+| Agent Workflow     | LangChain Tool                         |
+| API Testing        | Swagger UI                             |
+| Deployment         | Railway                                |
+| Containerization   | Docker                                 |
+| Language           | Python                                 |
 
 ---
 
-## Features
+## Key Features
 
 * PDF document ingestion
-* RAG-based question answering
+* Text extraction from healthcare PDFs
+* Document chunking
+* Embedding generation using sentence-transformers
+* ChromaDB vector storage
+* Similarity-based context retrieval
+* Groq LLM response generation
 * Source citations with document name and chunk index
-* Unknown answer handling
+* Confidence label in API response
+* Route label in API response
+* Unknown-answer fallback handling
 * Healthcare-safe prompting
-* LangChain mock appointment tool
-* FastAPI endpoints
-* Streamlit demo UI
+* Appointment question routing using LangChain mock tool
+* FastAPI backend APIs
+* Streamlit chatbot-style demo UI
 * Dockerfile and docker-compose support
+* Railway deployment support
 
 ---
 
-## Architecture Flow
+## Architecture Flowchart
 
 ```text
-User / Streamlit / Swagger
-        ↓
-FastAPI Backend
-        ↓
-Question Router
-        ↓
-Appointment Question? ── Yes ──> LangChain Mock Appointment Tool
-        ↓ No
-RAG Pipeline
-        ↓
-ChromaDB Similarity Search
-        ↓
-Retrieved PDF Chunks
-        ↓
-Groq LLM
-        ↓
-Answer + Sources + Confidence
+                    +------------------------------+
+                    | User / Demo UI               |
+                    | Streamlit or API Client      |
+                    +--------------+---------------+
+                                   |
+                                   v
+                    +------------------------------+
+                    | FastAPI Backend              |
+                    | /health  /ingest  /ask       |
+                    +--------------+---------------+
+                                   |
+                                   v
+                    +------------------------------+
+                    | Question Router              |
+                    | Appointment or RAG Query     |
+                    +--------------+---------------+
+                                   |
+                     +-------------+-------------+
+                     |                           |
+                     v                           v
+       +---------------------------+   +---------------------------+
+       | Mock Appointment Tool     |   | RAG Pipeline              |
+       | Department + Day Slots    |   | Retrieve + Generate       |
+       +-------------+-------------+   +-------------+-------------+
+                     |                               |
+                     v                               v
+       +---------------------------+   +---------------------------+
+       | Appointment Response      |   | ChromaDB Similarity       |
+       | route: appointment_tool   |   | + Context Retrieval       |
+       +---------------------------+   +-------------+-------------+
+                                                   |
+                                                   v
+                                     +---------------------------+
+                                     | Retrieved PDF Chunks      |
+                                     | Relevant Context          |
+                                     +-------------+-------------+
+                                                   |
+                                                   v
+                                     +---------------------------+
+                                     | Groq LLM                  |
+                                     | Safety-Grounded Prompt    |
+                                     +-------------+-------------+
+                                                   |
+                                                   v
+                                     +---------------------------+
+                                     | Final API Response        |
+                                     | answer + sources +        |
+                                     | confidence + route        |
+                                     +---------------------------+
 ```
 
 ---
 
-## RAG Pipeline
+## RAG Pipeline Flow
 
 ```text
-PDFs in /data
-   ↓
-Text extraction using pypdf
-   ↓
-Chunking
-   ↓
-Embedding generation
-   ↓
+              +----------------------+
+              | Healthcare PDFs      |
+              | data/ folder         |
+              +----------+-----------+
+                         |
+                         v
+              +----------------------+
+              | PDF Text Extraction  |
+              | using pypdf          |
+              +----------+-----------+
+                         |
+                         v
+              +----------------------+
+              | Text Chunking        |
+              | Smaller passages     |
+              +----------+-----------+
+                         |
+                         v
+              +----------------------+
+              | Embedding Generation |
+              | all-MiniLM-L6-v2     |
+              +----------+-----------+
+                         |
+                         v
+              +----------------------+
+              | ChromaDB Vector DB   |
+              | Store embeddings     |
+              +----------+-----------+
+                         |
+                         v
+              +----------------------+
+              | Similarity Search    |
+              | Retrieve top chunks  |
+              +----------+-----------+
+                         |
+                         v
+              +----------------------+
+              | Groq LLM             |
+              | Grounded generation  |
+              +----------+-----------+
+                         |
+                         v
+              +----------------------+
+              | Final Answer         |
+              | With sources         |
+              +----------------------+
+```
+
+---
+
+## API Flow
+
+```text
+POST /ingest
+    |
+    v
+Read PDFs from data/
+    |
+    v
+Extract text
+    |
+    v
+Create chunks
+    |
+    v
+Generate embeddings
+    |
+    v
 Store in ChromaDB
-   ↓
-Retrieve relevant chunks
-   ↓
-Generate grounded answer using Groq
+    |
+    v
+Return total files and chunks
+```
+
+```text
+POST /ask
+    |
+    v
+Receive user question
+    |
+    v
+Check question type
+    |
+    +--> Appointment question
+    |       |
+    |       v
+    |   LangChain mock appointment tool
+    |       |
+    |       v
+    |   Return appointment response
+    |
+    +--> Document question
+            |
+            v
+        Retrieve relevant chunks from ChromaDB
+            |
+            v
+        Send context + question to Groq LLM
+            |
+            v
+        Return answer + sources + confidence + route
 ```
 
 ---
@@ -90,21 +249,56 @@ Generate grounded answer using Groq
 ```text
 healthcare-ai-assistant/
 ├── app/
-│   ├── main.py
-│   ├── config.py
-│   ├── embeddings.py
-│   ├── rag.py
-│   ├── llm.py
-│   └── agent.py
+│   ├── __init__.py
+│   ├── main.py              # FastAPI app and API routes
+│   ├── config.py            # Configuration and environment variables
+│   ├── embeddings.py        # Embedding model setup
+│   ├── rag.py               # RAG ingestion and retrieval logic
+│   ├── llm.py               # Groq LLM integration
+│   └── agent.py             # LangChain appointment tool
+│
 ├── data/
+│   ├── appointment_policy.pdf
+│   ├── discharge_instructions.pdf
+│   ├── insurance_faq.pdf
+│   ├── medication_refill_policy.pdf
+│   ├── privacy_guidelines.pdf
+│   └── telehealth_policy.pdf
+│
 ├── screenshots/
-├── streamlit_app.py
+│   ├── ingest_api.png
+│   ├── ask_api_request.png
+│   ├── ask_api_response.png
+│   ├── streamlit_rag_answer.png
+│   ├── streamlit_appointment_tool.png
+│   └── streamlit_unknown_answer.png
+│
+├── streamlit_app.py         # Streamlit chatbot UI
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
+├── .dockerignore
+├── .env.example
 ├── ARCHITECTURE.md
 └── README.md
 ```
+
+---
+
+## Dataset Details
+
+The project uses synthetic healthcare PDF documents placed inside the `data/` folder.
+
+Document topics include:
+
+* Telehealth policy
+* Medication refill policy
+* Appointment policy
+* Privacy guidelines
+* Insurance FAQ
+* Discharge instructions
+
+No real patient data, PHI, or confidential medical records are used.
 
 ---
 
@@ -112,56 +306,87 @@ healthcare-ai-assistant/
 
 | Method | Endpoint  | Purpose                                 |
 | ------ | --------- | --------------------------------------- |
-| GET    | `/health` | Check API status                        |
+| GET    | `/`       | Root endpoint                           |
+| GET    | `/health` | Check backend health                    |
 | POST   | `/ingest` | Ingest PDFs and build vector store      |
 | POST   | `/ask`    | Ask healthcare or appointment questions |
 
 ---
 
-## Setup
+## Setup Instructions
+
+### 1. Clone the Repository
 
 ```powershell
-git clone <your-repo-link>
-cd healthcare-ai-assistant
+git clone https://github.com/aryanzende/healthcare-ai-assistant-rag.git
+cd healthcare-ai-assistant-rag
+```
+
+### 2. Create Virtual Environment
+
+```powershell
 python -m venv venv
 .\venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+
+```powershell
 pip install -r requirements.txt
 ```
 
-Create `.env`:
+### 4. Create `.env` File
+
+Create a `.env` file in the project root:
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
+Important: Do not commit `.env` to GitHub.
+
 ---
 
-## Run FastAPI
+## Run FastAPI Backend Locally
 
 ```powershell
-uvicorn app.main:app
+uvicorn app.main:app --reload
 ```
 
-Open:
+Open Swagger UI:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
+Health check:
+
+```text
+http://127.0.0.1:8000/health
+```
+
 ---
 
-## Run Streamlit
+## Run Streamlit UI Locally
 
 ```powershell
 streamlit run streamlit_app.py
+```
+
+Open:
+
+```text
+http://localhost:8501
 ```
 
 ---
 
 ## API Examples
 
-### Ingest Documents
+### 1. Ingest Documents
+
+Endpoint:
 
 ```http
 POST /ingest
@@ -177,7 +402,40 @@ Sample response:
 }
 ```
 
-### Ask RAG Question
+---
+
+### 2. Ask RAG Question
+
+Request:
+
+```json
+{
+  "question": "What documents are required for insurance?"
+}
+```
+
+Sample response:
+
+```json
+{
+  "answer": "Insurance card, government ID, policy number, member ID, group number, date of birth, employer details if applicable, and referral or authorization documents when required.",
+  "sources": [
+    {
+      "document": "insurance_faq.pdf",
+      "chunk_index": 1,
+      "chunk": "Patients may need to provide insurance card, government ID, policy number, member ID, group number..."
+    }
+  ],
+  "confidence": "medium",
+  "route": "rag"
+}
+```
+
+---
+
+### 3. Ask Telehealth Question
+
+Request:
 
 ```json
 {
@@ -189,7 +447,7 @@ Sample response:
 
 ```json
 {
-  "answer": "Yes, if the medication is already prescribed, the patient is stable, and no in-person exam or restricted monitoring is required.",
+  "answer": "Yes, patients may request medication refills through telehealth if the medication is already prescribed, the patient is stable, and the medication does not require an in-person physical examination or restricted monitoring.",
   "sources": [
     {
       "document": "telehealth_policy.pdf",
@@ -202,7 +460,11 @@ Sample response:
 }
 ```
 
-### Ask Appointment Question
+---
+
+### 4. Ask Appointment Question
+
+Request:
 
 ```json
 {
@@ -220,7 +482,11 @@ Sample response:
 }
 ```
 
-### Unknown Answer
+---
+
+### 5. Unknown Answer Handling
+
+Request:
 
 ```json
 {
@@ -234,17 +500,40 @@ Expected response:
 I could not find this information in the provided documents.
 ```
 
+This shows that the assistant avoids guessing when the answer is not available in the provided documents.
+
+---
+
+## Sample Questions for Testing
+
+```text
+What documents are required for insurance?
+What are the privacy rules for patient data?
+Can patients request medication refills through telehealth?
+When can a medication refill be denied?
+What should patients do after hospital discharge?
+Can I book a cardiology appointment for Monday?
+Is there any dermatology slot available on Friday?
+Can patient data be used in AI testing or demos?
+Can you diagnose my chest pain?
+What is the CEO's salary?
+```
+
 ---
 
 ## Prompting Strategy
 
-The Groq LLM prompt ensures:
+The Groq LLM is instructed to follow a healthcare-safe grounded prompt.
+
+The assistant must:
 
 * Answer only from retrieved context
-* Do not use outside knowledge
-* Do not guess
-* Avoid diagnosis and unsafe medical advice
-* Return this fallback when information is missing:
+* Not use outside knowledge
+* Not guess missing information
+* Avoid diagnosis, prescription, or unsafe medical advice
+* Return a fallback response when information is unavailable
+
+Fallback response:
 
 ```text
 I could not find this information in the provided documents.
@@ -252,20 +541,27 @@ I could not find this information in the provided documents.
 
 ---
 
-## Dataset Details
+## Routing Strategy
 
-The project uses healthcare PDFs inside the `data/` folder.
+The system uses a simple question router.
 
-Topics include:
+```text
+Appointment-related query
+        ↓
+LangChain mock appointment tool
+        ↓
+route: appointment_tool
+```
 
-* Telehealth policy
-* Medication refill policy
-* Appointment policy
-* Privacy guidelines
-* Insurance FAQ
-* Discharge instructions
+```text
+Healthcare document query
+        ↓
+RAG retrieval pipeline
+        ↓
+route: rag
+```
 
-No real patient data or PHI is used.
+This allows the assistant to handle both document-based questions and mock appointment availability queries.
 
 ---
 
@@ -277,11 +573,15 @@ Shows the `/ingest` endpoint reading healthcare PDFs from the `data/` folder, cr
 
 ![Document Ingestion API](screenshots/ingest_api.png)
 
+---
+
 ### Ask API Request
 
 Shows the `/ask` endpoint accepting a user question in JSON format.
 
 ![Ask API Request](screenshots/ask_api_request.png)
+
+---
 
 ### Ask API Response with Sources
 
@@ -289,11 +589,15 @@ Shows the RAG answer generated using retrieved PDF chunks. The response includes
 
 ![Ask API Response](screenshots/ask_api_response.png)
 
+---
+
 ### Streamlit RAG Answer
 
 Shows the Streamlit UI answering a healthcare document question using the RAG pipeline.
 
 ![Streamlit RAG Answer](screenshots/streamlit_rag_answer.png)
+
+---
 
 ### LangChain Appointment Tool
 
@@ -301,38 +605,88 @@ Shows appointment-related questions being routed to the LangChain mock appointme
 
 ![Appointment Tool](screenshots/streamlit_appointment_tool.png)
 
+---
+
 ### Unknown Answer Handling
 
 Shows how the assistant avoids hallucination. When the answer is not found in the documents, it returns the fallback response instead of guessing.
 
 ![Unknown Answer](screenshots/streamlit_unknown_answer.png)
 
-## Docker
+---
 
-Build image:
+## Docker Usage
+
+### Build Docker Image
 
 ```powershell
 docker build -t healthcare-ai-assistant .
 ```
 
-Run container:
+### Run Docker Container
 
 ```powershell
 docker run -p 8000:8000 --env-file .env healthcare-ai-assistant
 ```
 
+Open:
+
+```text
+http://localhost:8000/docs
+```
+
 ---
 
-## Key Choices
+## Deployment
 
-| Item            | Used                                   |
-| --------------- | -------------------------------------- |
-| LLM             | Groq                                   |
-| Embedding Model | sentence-transformers/all-MiniLM-L6-v2 |
-| Vector DB       | ChromaDB                               |
-| Agent Workflow  | LangChain mock appointment tool        |
-| Backend         | FastAPI                                |
-| UI              | Streamlit                              |
+### Backend Deployment
+
+The FastAPI backend is deployed on Railway.
+
+Live backend:
+
+```text
+https://healthcare-ai-assistant-rag-production.up.railway.app
+```
+
+Swagger UI:
+
+```text
+https://healthcare-ai-assistant-rag-production.up.railway.app/docs
+```
+
+### Required Railway Environment Variables
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+---
+
+## Environment Variables
+
+| Variable       | Purpose                               |
+| -------------- | ------------------------------------- |
+| `GROQ_API_KEY` | API key for Groq LLM                  |
+| `GROQ_MODEL`   | Groq model name                       |
+| `API_BASE_URL` | Optional backend URL for Streamlit UI |
+
+---
+
+## Key Design Decisions
+
+| Decision                | Reason                                               |
+| ----------------------- | ---------------------------------------------------- |
+| FastAPI backend         | Lightweight, fast, production-friendly API framework |
+| Streamlit UI            | Quick and clean demo interface                       |
+| ChromaDB                | Simple local vector database for RAG                 |
+| sentence-transformers   | Open-source embedding model                          |
+| Groq LLM                | Fast response generation                             |
+| Source citations        | Improves transparency and trust                      |
+| Unknown answer fallback | Reduces hallucination                                |
+| Mock appointment tool   | Demonstrates agent/tool routing                      |
+| Docker                  | Makes deployment consistent                          |
 
 ---
 
@@ -340,24 +694,41 @@ docker run -p 8000:8000 --env-file .env healthcare-ai-assistant
 
 * Answers only from provided PDFs
 * Mock appointment system only
-* No real hospital/EHR integration
+* No real hospital or EHR integration
+* No authentication system
 * No scanned PDF OCR
-* Not for diagnosis or emergency use
+* No page-level citation yet
+* Not suitable for diagnosis, emergency, or treatment decisions
 
 ---
 
 ## Future Improvements
 
-* Add PDF upload from UI
-* Add OCR for scanned PDFs
+* Add PDF upload from Streamlit UI
+* Add OCR support for scanned PDFs
 * Add page-level citations
 * Add authentication
 * Add PHI masking
+* Add conversation memory
 * Add real appointment API integration
-* Deploy on Render
+* Add admin dashboard for document management
+* Add monitoring and logging
+* Deploy Streamlit UI publicly
 
 ---
 
 ## Healthcare Safety Note
 
-This project is for demo purposes only. It does not use real patient data or PHI. It should not be used for diagnosis, treatment, or emergency decisions.
+This project is for demo and educational purposes only.
+
+It does not use real patient data or PHI. It should not be used for diagnosis, treatment, emergency decisions, or real clinical workflows.
+
+For medical emergencies, users should contact emergency services or a qualified healthcare professional.
+
+---
+
+## Author
+
+**Aryan Zende**
+
+Built with FastAPI, Streamlit, Groq, ChromaDB, LangChain, and RAG.
