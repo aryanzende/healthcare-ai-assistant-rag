@@ -2,17 +2,25 @@
 
 A healthcare-focused AI assistant that answers questions from healthcare policy PDF documents using **Retrieval-Augmented Generation (RAG)**. The system retrieves relevant document chunks from a vector database and generates grounded answers using a Groq-hosted LLM.
 
-This project includes **PDF ingestion, semantic search, Pinecone vector storage, Groq LLM answer generation, source citations, confidence labels, FastAPI APIs, Streamlit chatbot UI, LangChain appointment tool routing, Docker support, and Railway deployment**.
+This project includes **PDF ingestion, semantic search, Pinecone vector storage, Groq LLM answer generation, source citations, confidence labels, FastAPI APIs, Streamlit chatbot UI, LangChain appointment tool routing, Docker support, Railway deployment, and Streamlit Community Cloud deployment**.
 
 ---
 
-## Live Backend
+## Live Demo and Deployment Links
+
+### Streamlit UI
+
+```text
+https://healthcare-ai-assistant-aryanzende.streamlit.app
+```
+
+### FastAPI Backend
 
 ```text
 https://healthcare-ai-assistant-rag-production.up.railway.app
 ```
 
-API documentation:
+### Swagger API Documentation
 
 ```text
 https://healthcare-ai-assistant-rag-production.up.railway.app/docs
@@ -42,19 +50,20 @@ Manually searching these documents is time-consuming. A general chatbot may hall
 
 ## Tech Stack
 
-| Component          | Technology                             |
-| ------------------ | -------------------------------------- |
-| Backend            | FastAPI                                |
-| Frontend / Demo UI | Streamlit                              |
-| LLM                | Groq                                   |
-| Embedding Model    | sentence-transformers/all-MiniLM-L6-v2 |
-| Vector Database    | Pinecone                               |
-| PDF Processing     | pypdf                                  |
-| Agent Workflow     | LangChain Tool                         |
-| API Testing        | Swagger UI                             |
-| Deployment         | Railway                                |
-| Containerization   | Docker                                 |
-| Language           | Python                                 |
+| Component           | Technology                             |
+| ------------------- | -------------------------------------- |
+| Backend             | FastAPI                                |
+| Frontend / Demo UI  | Streamlit                              |
+| LLM                 | Groq                                   |
+| Embedding Model     | sentence-transformers/all-MiniLM-L6-v2 |
+| Vector Database     | Pinecone                               |
+| PDF Processing      | pypdf                                  |
+| Agent Workflow      | LangChain Tool                         |
+| API Testing         | Swagger UI                             |
+| Backend Deployment  | Railway                                |
+| Frontend Deployment | Streamlit Community Cloud              |
+| Containerization    | Docker                                 |
+| Language            | Python                                 |
 
 ---
 
@@ -76,7 +85,9 @@ Manually searching these documents is time-consuming. A general chatbot may hall
 * FastAPI backend APIs
 * Streamlit chatbot-style demo UI
 * Dockerfile and docker-compose support
-* Railway deployment support
+* Railway backend deployment
+* Streamlit Community Cloud frontend deployment
+* Persistent vector storage using Pinecone to avoid re-ingestion after backend restart
 
 ---
 
@@ -304,12 +315,12 @@ No real patient data, PHI, or confidential medical records are used.
 
 ## API Endpoints
 
-| Method | Endpoint  | Purpose                                 |
-| ------ | --------- | --------------------------------------- |
-| GET    | `/`       | Root endpoint                           |
-| GET    | `/health` | Check backend health                    |
-| POST   | `/ingest` | Ingest PDFs and build vector store      |
-| POST   | `/ask`    | Ask healthcare or appointment questions |
+| Method | Endpoint  | Purpose                                             |
+| ------ | --------- | --------------------------------------------------- |
+| GET    | `/`       | Root endpoint                                       |
+| GET    | `/health` | Check backend health                                |
+| POST   | `/ingest` | Ingest PDFs and store vector embeddings in Pinecone |
+| POST   | `/ask`    | Ask healthcare or appointment questions             |
 
 ---
 
@@ -383,6 +394,18 @@ Open:
 http://localhost:8501
 ```
 
+For local testing, keep the backend URL as:
+
+```python
+API_BASE_URL = "http://127.0.0.1:8000"
+```
+
+For deployed frontend, keep the Railway backend URL:
+
+```python
+API_BASE_URL = "https://healthcare-ai-assistant-rag-production.up.railway.app"
+```
+
 ---
 
 ## API Examples
@@ -395,12 +418,28 @@ Endpoint:
 POST /ingest
 ```
 
-Sample response:
+Sample response when documents are ingested:
 
 ```json
 {
   "message": "Documents ingested successfully",
   "total_files": 6,
+  "new_files_ingested": 6,
+  "skipped_files": 0,
+  "new_chunks_added": 28,
+  "total_chunks": 28
+}
+```
+
+Sample response when documents already exist in Pinecone:
+
+```json
+{
+  "message": "All documents already ingested in Pinecone",
+  "total_files": 6,
+  "new_files_ingested": 0,
+  "skipped_files": 6,
+  "new_chunks_added": 0,
   "total_chunks": 28
 }
 ```
@@ -658,6 +697,16 @@ Swagger UI:
 https://healthcare-ai-assistant-rag-production.up.railway.app/docs
 ```
 
+### Frontend Deployment
+
+The Streamlit UI is deployed on Streamlit Community Cloud.
+
+Live Streamlit app:
+
+```text
+https://healthcare-ai-assistant-aryanzende.streamlit.app
+```
+
 ### Required Railway Environment Variables
 
 ```env
@@ -672,14 +721,14 @@ PINECONE_NAMESPACE=healthcare-docs
 
 ## Environment Variables
 
-| Variable              | Purpose                               |
-| --------------------- | ------------------------------------- |
-| `GROQ_API_KEY`        | API key for Groq LLM                  |
-| `GROQ_MODEL`          | Groq model name                       |
-| `PINECONE_API_KEY`    | API key for Pinecone                  |
-| `PINECONE_INDEX_NAME` | Pinecone index name, defaults to rag  |
-| `PINECONE_NAMESPACE`  | Pinecone namespace for document chunks |
-| `API_BASE_URL`        | Optional backend URL for Streamlit UI |
+| Variable              | Purpose                                           |
+| --------------------- | ------------------------------------------------- |
+| `GROQ_API_KEY`        | API key for Groq LLM                              |
+| `GROQ_MODEL`          | Groq model name                                   |
+| `PINECONE_API_KEY`    | API key for Pinecone                              |
+| `PINECONE_INDEX_NAME` | Pinecone index name, defaults to `rag`            |
+| `PINECONE_NAMESPACE`  | Pinecone namespace for healthcare document chunks |
+| `API_BASE_URL`        | Optional backend URL for Streamlit UI             |
 
 ---
 
@@ -705,7 +754,7 @@ PINECONE_NAMESPACE=healthcare-docs
 * Mock appointment system only
 * No real hospital or EHR integration
 * No authentication system
-* No scanned PDF OCR
+* Supports text-readable PDFs; scanned PDFs require OCR support
 * No page-level citation yet
 * Not suitable for diagnosis, emergency, or treatment decisions
 
@@ -722,7 +771,7 @@ PINECONE_NAMESPACE=healthcare-docs
 * Add real appointment API integration
 * Add admin dashboard for document management
 * Add monitoring and logging
-* Deploy Streamlit UI publicly
+* Add persistent deployment health checks
 
 ---
 
