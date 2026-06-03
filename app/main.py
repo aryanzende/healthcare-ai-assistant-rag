@@ -9,7 +9,7 @@ from app.rag import ingest_documents, retrieve_context
 
 app = FastAPI(
     title="Healthcare AI Assistant",
-    description="Healthcare AI Assistant using RAG, Groq LLM, and ChromaDB",
+    description="Healthcare AI Assistant using RAG, Groq LLM, and Pinecone",
     version="1.0.0",
 )
 

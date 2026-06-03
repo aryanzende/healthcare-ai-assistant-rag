@@ -10,4 +10,3 @@ services:
       - .env
     volumes:
       - ./data:/app/data
-      - ./vector_store:/app/vector_store

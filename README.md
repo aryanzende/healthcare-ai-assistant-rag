@@ -2,25 +2,17 @@
 
 A healthcare-focused AI assistant that answers questions from healthcare policy PDF documents using **Retrieval-Augmented Generation (RAG)**. The system retrieves relevant document chunks from a vector database and generates grounded answers using a Groq-hosted LLM.
 
-This project includes **PDF ingestion, semantic search, ChromaDB vector storage, Groq LLM answer generation, source citations, confidence labels, FastAPI APIs, Streamlit chatbot UI, LangChain appointment tool routing, Docker support, Railway deployment, and Streamlit Community Cloud deployment**.
+This project includes **PDF ingestion, semantic search, Pinecone vector storage, Groq LLM answer generation, source citations, confidence labels, FastAPI APIs, Streamlit chatbot UI, LangChain appointment tool routing, Docker support, and Railway deployment**.
 
 ---
 
-## Live Demo and Deployment Links
-
-### Streamlit UI
-
-```text
-https://healthcare-ai-assistant-aryanzende.streamlit.app
-```
-
-### FastAPI Backend
+## Live Backend
 
 ```text
 https://healthcare-ai-assistant-rag-production.up.railway.app
 ```
 
-### Swagger API Documentation
+API documentation:
 
 ```text
 https://healthcare-ai-assistant-rag-production.up.railway.app/docs
@@ -50,20 +42,19 @@ Manually searching these documents is time-consuming. A general chatbot may hall
 
 ## Tech Stack
 
-| Component           | Technology                             |
-| ------------------- | -------------------------------------- |
-| Backend             | FastAPI                                |
-| Frontend / Demo UI  | Streamlit                              |
-| LLM                 | Groq                                   |
-| Embedding Model     | sentence-transformers/all-MiniLM-L6-v2 |
-| Vector Database     | ChromaDB                               |
-| PDF Processing      | pypdf                                  |
-| Agent Workflow      | LangChain Tool                         |
-| API Testing         | Swagger UI                             |
-| Backend Deployment  | Railway                                |
-| Frontend Deployment | Streamlit Community Cloud              |
-| Containerization    | Docker                                 |
-| Language            | Python                                 |
+| Component          | Technology                             |
+| ------------------ | -------------------------------------- |
+| Backend            | FastAPI                                |
+| Frontend / Demo UI | Streamlit                              |
+| LLM                | Groq                                   |
+| Embedding Model    | sentence-transformers/all-MiniLM-L6-v2 |
+| Vector Database    | Pinecone                               |
+| PDF Processing     | pypdf                                  |
+| Agent Workflow     | LangChain Tool                         |
+| API Testing        | Swagger UI                             |
+| Deployment         | Railway                                |
+| Containerization   | Docker                                 |
+| Language           | Python                                 |
 
 ---
 
@@ -73,7 +64,7 @@ Manually searching these documents is time-consuming. A general chatbot may hall
 * Text extraction from healthcare PDFs
 * Document chunking
 * Embedding generation using sentence-transformers
-* ChromaDB vector storage
+* Pinecone vector storage
 * Similarity-based context retrieval
 * Groq LLM response generation
 * Source citations with document name and chunk index
@@ -85,8 +76,7 @@ Manually searching these documents is time-consuming. A general chatbot may hall
 * FastAPI backend APIs
 * Streamlit chatbot-style demo UI
 * Dockerfile and docker-compose support
-* Railway backend deployment
-* Streamlit Community Cloud UI deployment
+* Railway deployment support
 
 ---
 
@@ -120,7 +110,7 @@ Manually searching these documents is time-consuming. A general chatbot may hall
                      |                               |
                      v                               v
        +---------------------------+   +---------------------------+
-       | Appointment Response      |   | ChromaDB Similarity       |
+       | Appointment Response      |   | Pinecone Similarity       |
        | route: appointment_tool   |   | + Context Retrieval       |
        +---------------------------+   +-------------+-------------+
                                                    |
@@ -174,7 +164,7 @@ Manually searching these documents is time-consuming. A general chatbot may hall
                          |
                          v
               +----------------------+
-              | ChromaDB Vector DB   |
+              | Pinecone Vector DB   |
               | Store embeddings     |
               +----------+-----------+
                          |
@@ -217,7 +207,7 @@ Create chunks
 Generate embeddings
     |
     v
-Store in ChromaDB
+Store in Pinecone
     |
     v
 Return total files and chunks
@@ -243,7 +233,7 @@ Check question type
     +--> Document question
             |
             v
-        Retrieve relevant chunks from ChromaDB
+        Retrieve relevant chunks from Pinecone
             |
             v
         Send context + question to Groq LLM
@@ -352,6 +342,9 @@ Create a `.env` file in the project root:
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
+PINECONE_API_KEY=your_pinecone_api_key_here
+PINECONE_INDEX_NAME=rag
+PINECONE_NAMESPACE=healthcare-docs
 ```
 
 Important: Do not commit `.env` to GitHub.
@@ -579,7 +572,7 @@ This allows the assistant to handle both document-based questions and mock appoi
 
 ### Document Ingestion API
 
-Shows the `/ingest` endpoint reading healthcare PDFs from the `data/` folder, creating chunks, generating embeddings, and storing them in ChromaDB.
+Shows the `/ingest` endpoint reading healthcare PDFs from the `data/` folder, creating chunks, generating embeddings, and storing them in Pinecone.
 
 ![Document Ingestion API](screenshots/ingest_api.png)
 
@@ -665,32 +658,28 @@ Swagger UI:
 https://healthcare-ai-assistant-rag-production.up.railway.app/docs
 ```
 
-### Frontend Deployment
-
-The Streamlit UI is deployed on Streamlit Community Cloud.
-
-Live Streamlit app:
-
-```text
-https://healthcare-ai-assistant-aryanzende.streamlit.app
-```
-
 ### Required Railway Environment Variables
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
+PINECONE_API_KEY=your_pinecone_api_key_here
+PINECONE_INDEX_NAME=rag
+PINECONE_NAMESPACE=healthcare-docs
 ```
 
 ---
 
 ## Environment Variables
 
-| Variable       | Purpose                               |
-| -------------- | ------------------------------------- |
-| `GROQ_API_KEY` | API key for Groq LLM                  |
-| `GROQ_MODEL`   | Groq model name                       |
-| `API_BASE_URL` | Optional backend URL for Streamlit UI |
+| Variable              | Purpose                               |
+| --------------------- | ------------------------------------- |
+| `GROQ_API_KEY`        | API key for Groq LLM                  |
+| `GROQ_MODEL`          | Groq model name                       |
+| `PINECONE_API_KEY`    | API key for Pinecone                  |
+| `PINECONE_INDEX_NAME` | Pinecone index name, defaults to rag  |
+| `PINECONE_NAMESPACE`  | Pinecone namespace for document chunks |
+| `API_BASE_URL`        | Optional backend URL for Streamlit UI |
 
 ---
 
@@ -700,7 +689,7 @@ GROQ_MODEL=llama-3.3-70b-versatile
 | ----------------------- | ---------------------------------------------------- |
 | FastAPI backend         | Lightweight, fast, production-friendly API framework |
 | Streamlit UI            | Quick and clean demo interface                       |
-| ChromaDB                | Simple local vector database for RAG                 |
+| Pinecone                | Persistent hosted vector database for RAG            |
 | sentence-transformers   | Open-source embedding model                          |
 | Groq LLM                | Fast response generation                             |
 | Source citations        | Improves transparency and trust                      |
@@ -718,7 +707,6 @@ GROQ_MODEL=llama-3.3-70b-versatile
 * No authentication system
 * No scanned PDF OCR
 * No page-level citation yet
-* Runtime vector store may reset after redeployment or service restart
 * Not suitable for diagnosis, emergency, or treatment decisions
 
 ---
@@ -734,7 +722,7 @@ GROQ_MODEL=llama-3.3-70b-versatile
 * Add real appointment API integration
 * Add admin dashboard for document management
 * Add monitoring and logging
-* Add permanent cloud vector database for persistent RAG storage
+* Deploy Streamlit UI publicly
 
 ---
 
@@ -752,4 +740,4 @@ For medical emergencies, users should contact emergency services or a qualified 
 
 **Aryan Zende**
 
-Built with FastAPI, Streamlit, Groq, ChromaDB, LangChain, and RAG.
+Built with FastAPI, Streamlit, Groq, Pinecone, LangChain, and RAG.

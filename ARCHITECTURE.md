@@ -29,7 +29,7 @@
                      |                               |
                      v                               v
        +---------------------------+   +---------------------------+
-       | Appointment Response      |   | ChromaDB Similarity       |
+       | Appointment Response      |   | Pinecone Similarity       |
        | route: appointment_tool   |   | + Context Retrieval       |
        +-------------+-------------+   +-------------+-------------+
                                                    |
@@ -47,7 +47,7 @@
                                      +---------------------------+
 
 Ingestion path:
-POST /ingest -> Read PDFs -> Extract text (pypdf) -> Chunk -> Embed -> Store in ChromaDB
+POST /ingest -> Read PDFs -> Extract text (pypdf) -> Chunk -> Embed -> Store in Pinecone
 ```
 
 ## Objective
@@ -58,13 +58,13 @@ Build a healthcare Q&A assistant that answers only from provided PDF documents u
 - Streamlit (UI)
 - Groq LLM (answer generation)
 - sentence-transformers/all-MiniLM-L6-v2 (embeddings)
-- ChromaDB (vector search)
+- Pinecone (vector search)
 - pypdf (PDF text extraction)
 - Docker (portable run)
 
 ## System Flow
 1. User ingests PDFs via `POST /ingest`.
-2. PDFs are parsed, chunked, embedded, and stored in ChromaDB.
+2. PDFs are parsed, chunked, embedded, and stored in Pinecone.
 3. User asks via `POST /ask`.
 4. Router decides:
    - Appointment query -> mock appointment tool (`route: appointment_tool`)
@@ -111,7 +111,7 @@ This keeps answers auditable and easy to verify.
 
 ## Key Decisions
 - Keep architecture simple and local-first for hackathon speed.
-- Use ChromaDB + MiniLM for lightweight retrieval.
+- Use Pinecone + MiniLM for persistent retrieval.
 - Use deterministic appointment routing for explainable demo behavior.
 
 ## Limitations
