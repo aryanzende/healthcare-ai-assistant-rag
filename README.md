@@ -2,17 +2,25 @@
 
 A healthcare-focused AI assistant that answers questions from healthcare policy PDF documents using **Retrieval-Augmented Generation (RAG)**. The system retrieves relevant document chunks from a vector database and generates grounded answers using a Groq-hosted LLM.
 
-This project includes **PDF ingestion, semantic search, ChromaDB vector storage, Groq LLM answer generation, source citations, confidence labels, FastAPI APIs, Streamlit chatbot UI, LangChain appointment tool routing, Docker support, and Railway deployment**.
+This project includes **PDF ingestion, semantic search, ChromaDB vector storage, Groq LLM answer generation, source citations, confidence labels, FastAPI APIs, Streamlit chatbot UI, LangChain appointment tool routing, Docker support, Railway deployment, and Streamlit Community Cloud deployment**.
 
 ---
 
-## Live Backend
+## Live Demo and Deployment Links
+
+### Streamlit UI
+
+```text
+https://healthcare-ai-assistant-aryanzende.streamlit.app
+```
+
+### FastAPI Backend
 
 ```text
 https://healthcare-ai-assistant-rag-production.up.railway.app
 ```
 
-API documentation:
+### Swagger API Documentation
 
 ```text
 https://healthcare-ai-assistant-rag-production.up.railway.app/docs
@@ -42,19 +50,20 @@ Manually searching these documents is time-consuming. A general chatbot may hall
 
 ## Tech Stack
 
-| Component          | Technology                             |
-| ------------------ | -------------------------------------- |
-| Backend            | FastAPI                                |
-| Frontend / Demo UI | Streamlit                              |
-| LLM                | Groq                                   |
-| Embedding Model    | sentence-transformers/all-MiniLM-L6-v2 |
-| Vector Database    | ChromaDB                               |
-| PDF Processing     | pypdf                                  |
-| Agent Workflow     | LangChain Tool                         |
-| API Testing        | Swagger UI                             |
-| Deployment         | Railway                                |
-| Containerization   | Docker                                 |
-| Language           | Python                                 |
+| Component           | Technology                             |
+| ------------------- | -------------------------------------- |
+| Backend             | FastAPI                                |
+| Frontend / Demo UI  | Streamlit                              |
+| LLM                 | Groq                                   |
+| Embedding Model     | sentence-transformers/all-MiniLM-L6-v2 |
+| Vector Database     | ChromaDB                               |
+| PDF Processing      | pypdf                                  |
+| Agent Workflow      | LangChain Tool                         |
+| API Testing         | Swagger UI                             |
+| Backend Deployment  | Railway                                |
+| Frontend Deployment | Streamlit Community Cloud              |
+| Containerization    | Docker                                 |
+| Language            | Python                                 |
 
 ---
 
@@ -76,7 +85,8 @@ Manually searching these documents is time-consuming. A general chatbot may hall
 * FastAPI backend APIs
 * Streamlit chatbot-style demo UI
 * Dockerfile and docker-compose support
-* Railway deployment support
+* Railway backend deployment
+* Streamlit Community Cloud UI deployment
 
 ---
 
@@ -655,6 +665,16 @@ Swagger UI:
 https://healthcare-ai-assistant-rag-production.up.railway.app/docs
 ```
 
+### Frontend Deployment
+
+The Streamlit UI is deployed on Streamlit Community Cloud.
+
+Live Streamlit app:
+
+```text
+https://healthcare-ai-assistant-aryanzende.streamlit.app
+```
+
 ### Required Railway Environment Variables
 
 ```env
@@ -698,6 +718,7 @@ GROQ_MODEL=llama-3.3-70b-versatile
 * No authentication system
 * No scanned PDF OCR
 * No page-level citation yet
+* Runtime vector store may reset after redeployment or service restart
 * Not suitable for diagnosis, emergency, or treatment decisions
 
 ---
@@ -713,7 +734,7 @@ GROQ_MODEL=llama-3.3-70b-versatile
 * Add real appointment API integration
 * Add admin dashboard for document management
 * Add monitoring and logging
-* Deploy Streamlit UI publicly
+* Add permanent cloud vector database for persistent RAG storage
 
 ---
 
