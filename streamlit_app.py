@@ -5,10 +5,10 @@ import streamlit as st
 
 
 # For local backend testing:
-API_BASE_URL = "http://127.0.0.1:8000"
+#API_BASE_URL = "http://127.0.0.1:8000"
 
 # For deployed Railway backend:
-#API_BASE_URL = "https://healthcare-ai-assistant-rag-production.up.railway.app"
+API_BASE_URL = "https://healthcare-ai-assistant-rag-production.up.railway.app"
 
 
 st.set_page_config(
